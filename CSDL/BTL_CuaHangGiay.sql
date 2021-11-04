@@ -1,12 +1,14 @@
 ﻿CREATE DATABASE BTL_CuaHangGiay
 USE BTL_CuaHangGiay
 --Bảng nhà cung cấp
+SELECT * FROM NHANVIEN
 CREATE TABLE NHACUNGCAP(
 	Ma_ncc CHAR(10) not null PRIMARY KEY,
 	Ten_ncc NVARCHAR(100),
 	SDT_ncc CHAR(15),
 	Diachi_ncc NVARCHAR(100),
 	Tinh_trang BIT DEFAULT 1)
+	SELECT * FROM NHACUNGCAP
 --Bảng Sản phẩm
 CREATE TABLE SANPHAM(
 	Ma_sp CHAR(10) not null PRIMARY KEY,
