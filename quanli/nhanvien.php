@@ -26,7 +26,7 @@
                             <tbody>
                                 <tr>
                                     <?php
-                                        $sql = "SELECT * FROM NHANVIEN";
+                                        $sql = "SELECT * FROM NHANVIEN WHERE Tinh_trang = 1";
                                         $res = sqlsrv_query($conn, $sql);
                                         while($row = sqlsrv_fetch_array($res))
                                         {

@@ -12,14 +12,6 @@
                     $gioitinh = $_POST['gender'];
                     $address = $_POST['address'];
                     $phone = $_POST['phone'];
-                    if($gioitinh == "Nam")
-                    {
-                        $gender = 1;
-                    }
-                    if($gioitinh == "Nữ")
-                    {
-                        $gender = 0;
-                    }
                     $ngay_sinh = $_POST['birthday'];
 
                     $time = strtotime($ngay_sinh);
@@ -47,7 +39,7 @@
                     }
                     
                     $sql = "INSERT INTO NhanVien(Ma_nv, Ten_nv, Gioi_tinh, Ngay_sinh, Chuc_vu, Mo_ta, Dia_chi, So_Dt) 
-                    VALUES('$id_nv', N'$ten_nv', '$gender', '$new_format_date', N'$chuc_vu', '$image_name', N'$address', '$phone')";
+                    VALUES('$id_nv', N'$ten_nv', N'$gioitinh', '$new_format_date', N'$chuc_vu', '$image_name', N'$address', '$phone')";
                     $res =  sqlsrv_query($conn, $sql);
                     if($res > 0)
                     {
@@ -71,8 +63,8 @@
                 <span>Giới tính</span>
                 <br>
                 <select name="gender" id="">
-                    <option value="">Nam</option>
-                    <option value="">Nữ</option>
+                    <option value="1">Nam</option>
+                    <option value="0">Nữ</option>
                 </select>
             </div>
             <div class="form-group">

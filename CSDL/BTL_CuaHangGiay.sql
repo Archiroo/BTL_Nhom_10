@@ -2,6 +2,7 @@
 USE BTL_CuaHangGiay
 --Bảng nhà cung cấp
 SELECT * FROM NHANVIEN
+
 CREATE TABLE NHACUNGCAP(
 	Ma_ncc CHAR(10) not null PRIMARY KEY,
 	Ten_ncc NVARCHAR(100),
