@@ -572,3 +572,4 @@ exec sp_grantdbaccess 'long', 'LONG'
 /*Gắn user DUC, LONG vào role*/
 sp_addrolemember 'nhanvien', 'DUC'
 sp_addrolemember 'nhanvien', 'LONG'
+

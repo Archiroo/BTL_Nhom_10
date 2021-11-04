@@ -38,7 +38,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="user.php">
+                    <a href="nhanvien.php">
                         <span class="fas fa-user"></span>
                         <span>Nhân viên</span>
                     </a>
@@ -59,6 +59,12 @@
                     <a href="homework.php">
                         <i class="fas fa-truck"></i>
                         <span>Nhà vận chuyển</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="homework.php">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Nhà cung cấp</span>
                     </a>
                 </li>
                 <li>
