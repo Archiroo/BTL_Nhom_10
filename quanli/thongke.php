@@ -13,7 +13,7 @@
             <div class="box">
                 <div class="box-image">
                     <img src="../image/thongkesp.png" alt="">
-                        <a href="luongnv.php">Sản phẩm</a>
+                        <a href="thongkesp.php">Sản phẩm</a>
                 </div>
             </div>
             <div class="box">
