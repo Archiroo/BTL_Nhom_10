@@ -44,9 +44,9 @@
                     </a>
                 </li>
                 <li>
-                    <a href="student.php">
-                        <span class="fas fa-user-friends"></span>
-                        <span>Khách hàng</span>
+                    <a href="nhacungcap.php">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Nhà cung cấp</span>
                     </a>
                 </li>
                 <li>
@@ -59,12 +59,6 @@
                     <a href="homework.php">
                         <i class="fas fa-truck"></i>
                         <span>Nhà vận chuyển</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="homework.php">
-                        <i class="fas fa-bookmark"></i>
-                        <span>Nhà cung cấp</span>
                     </a>
                 </li>
                 <li>
