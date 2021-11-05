@@ -12,10 +12,10 @@
                     $gioitinh = $_POST['gender'];
                     $address = $_POST['address'];
                     $phone = $_POST['phone'];
-                    $ngay_sinh = $_POST['birthday'];
+                    // $ngay_sinh = $_POST['birthday'];
 
-                    $time = strtotime($ngay_sinh);
-                    $new_format_date = date('Y-m-d');
+                    // $time = strtotime($ngay_sinh);
+                    $format_date = date('Y-m-d');
                     $chuc_vu = $_POST['chucvu'];
                     if(isset($_FILES['image']['name']))
                     {
@@ -39,7 +39,7 @@
                     }
                     
                     $sql = "INSERT INTO NhanVien(Ma_nv, Ten_nv, Gioi_tinh, Ngay_sinh, Chuc_vu, Mo_ta, Dia_chi, So_Dt) 
-                    VALUES('$id_nv', N'$ten_nv', N'$gioitinh', '$new_format_date', N'$chuc_vu', '$image_name', N'$address', '$phone')";
+                    VALUES('$id_nv', N'$ten_nv', N'$gioitinh', '$format_date', N'$chuc_vu', '$image_name', N'$address', '$phone')";
                     $res =  sqlsrv_query($conn, $sql);
                     if($res > 0)
                     {
