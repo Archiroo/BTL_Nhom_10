@@ -1,14 +1,12 @@
 ﻿CREATE DATABASE BTL_CuaHangGiay
 USE BTL_CuaHangGiay
 --Bảng nhà cung cấp
-SELECT * FROM NHAVANCHUYEN
 CREATE TABLE NHACUNGCAP(
 	Ma_ncc CHAR(10) not null PRIMARY KEY,
 	Ten_ncc NVARCHAR(100),
 	SDT_ncc CHAR(15),
 	Diachi_ncc NVARCHAR(100),
 	Tinh_trang BIT DEFAULT 1)
-	SELECT * FROM NHACUNGCAP
 --Bảng Sản phẩm
 CREATE TABLE SANPHAM(
 	Ma_sp CHAR(10) not null PRIMARY KEY,
@@ -67,7 +65,6 @@ CREATE TABLE HOADON(
 	FOREIGN KEY (Ma_khach) REFERENCES KHACHHANG(Ma_khach),
 	FOREIGN KEY (Ma_nvc) REFERENCES NHAVANCHUYEN(Ma_nvc))
 --Bảng Chi tiết hóa đơn
-SELECT * FROM CHITIETHD
 CREATE TABLE CHITIETHD(
 	Ma_hoadon INT,
 	Ma_sp CHAR(10),
@@ -76,8 +73,6 @@ CREATE TABLE CHITIETHD(
 	FOREIGN KEY (Ma_hoadon) REFERENCES HOADON(Ma_hoadon),
 	FOREIGN KEY (Ma_sp) REFERENCES SANPHAM(Ma_sp),
 	PRIMARY KEY(Ma_hoadon, Ma_sp))
-
-
 /*
 	Viết trigger khi xóa một nhà cung cấp thay vì xóa nhà cung cấp đó thì cập nhật các cột
 	tình trạng có liên quan tới nhà cung cấp = 0
@@ -168,7 +163,7 @@ END
 	Viết trigger khi thêm mới hóa đơn thì cập nhật tiền ship = 0 nếu địa chỉ ở đống đa còn lại = 30k
 	và chỉ có nhân viên có chức vụ là seller mới được tạo hóa đơn
 */
-CREATE TRIGGER TRIG_8 -- CHƯA CHẠY
+CREATE TRIGGER TRIG_8 -- CHƯA CHẠY VỘI
 On HoaDon
 For Insert, Update
 As
@@ -217,23 +212,6 @@ Begin
 	Where SanPham.Ma_sp = (Select Ma_sp From DELETED)
 End
 
---Viết hàm trả về tổng tiền của một hóa đơn với mã hóa đơn và tham số đầu vào 
-CREATE FUNCTION FUNC_2(@mahd INT)
-RETURNS FLOAT
-AS
-BEGIN
-	DECLARE @Tongtien FLOAT
-	SELECT @Tongtien =  (Sum(dbo.Func_1(ChiTietHD.Ma_hoadon,Ma_sp)) + Phi_ship)
-	FROM ChiTietHD, HoaDon
-	WHERE HoaDon.Ma_hoadon = @mahd and HoaDon.Ma_hoadon = ChiTietHD.Ma_hoadon
-		  AND ChiTietHD.Tinh_trang = 1 AND HoaDon.Tinh_trang = 1
-	GROUP BY ChiTietHD.Ma_hoadon, Phi_ship
-	RETURN @Tongtien
-END
-
-Select Ma_hoadon,
-dbo.Func_2(Ma_hoadon)
-As TongTien From HoaDon
 
 /*
 	Viết trigger tự động cập nhật thành tiền = FUNC_1() khi thêm mới chi tiết hóa đơn,
@@ -250,7 +228,7 @@ Values('NCC01', N'Nike', '096 5269082', N'Ninh Bình'),
 	  ('NCC04', N'Vans', '033 3333147', N'Nghệ An'),
 	  ('NCC05', N'MLB', '038 7383884', N'Hà Nội')
 --Dữ liệu bảng
-SELECT * FROM SANPHAM
+
 INSERT INTO SANPHAM(Ma_sp, Ten_sp, Mo_ta, Gia_nhap, Gia_ban, So_luongTon, Ma_ncc)
 Values('SP001', 'Nike Air Force 1', 'sanpham1.jpg', 1050, 1110, 19, 'NCC01'),
 	  ('SP002', 'Nike Air Jordan 1', 'sanpham2.jpg', 2100, 2200, 14, 'NCC01'),
@@ -277,7 +255,6 @@ Values('NV01', N'Trịnh Hoàng Long', 1, '10-29-2001', N'Quản Lý', 'nhanvien
 	  ('NV05', N'Lê Thị Lương', 0, '09-09-2001', N'Seller', 'nhanvien5.jpg', N'Đống Đa', '011 5555555'),
 	  ('NV06', N'Bùi Thị Diễm', 0, '08-08-2002', N'Seller', 'nhanvien6.jpg',N'Đống Đa', '011 6666666'),
 	  ('NV07', N'Vũ Thị Hồng Hạnh', 0, '07-07-2001', N'Seller', 'nhanvien7.jpg', N'Đống Đa', '011 7777777')
-SELECT * FROM NHANVIEN
 --Dữ liệu bảng Lương
 Insert into Luong
 Values('NV01', 29, 300), 
@@ -322,8 +299,8 @@ SELECT * FROM HOADON
 UPDATE HOADON SET Phi_ship = 30 WHERE Dia_chinhan != N'Đống Đa'
 --Xóa TRIGGER_8 rồi insert sau đó tạo lại
 DBCC CHECKIDENT ('HoaDon', RESEED, 0)
+
 --Dữ liệu bảng chi tiết hóa đơn
-SELECT * FROM CHITIETHD
 Insert into ChiTietHD(Ma_hoadon, Ma_sp, So_luongBan)
 Values(1, 'SP001', 1),
 	  (1, 'SP002', 1),
@@ -343,237 +320,258 @@ Values(1, 'SP001', 1),
 
 	  /*HÀM*/
 	  
-/*
-		Viết hàm trả về tiền của một sản phẩm trong đơn hàng có mã 
-		hóa đơn và mã sản phẩm được truyền vào qua tham số
+/*	Viết hàm trả về tiền của một sản phẩm trong đơn hàng có mã hóa đơn và 
+	mã sản phẩm được truyền vào qua tham số
 */
-CREATE FUNCTION FUNC_1(@mahd INT, @ma_sp CHAR(10))
-RETURNS FLOAT
-AS
-BEGIN
-	DECLARE @ThanhTien FLOAT
-	SELECT @ThanhTien = (SELECT (So_luongBan * Gia_ban) FROM ChiTietHD, SanPham
-	WHERE ChiTietHD.Ma_sp= SanPham.Ma_sp AND Ma_hoadon = @mahd and ChiTietHD.Ma_sp = @ma_sp
-			AND ChiTietHD.Tinh_trang = 1 AND SanPham.Tinh_trang = 1)
-	RETURN @ThanhTien
-End
+	CREATE FUNCTION FUNC_1(@mahd INT, @ma_sp CHAR(10))
+	RETURNS FLOAT
+	AS
+	BEGIN
+		DECLARE @ThanhTien FLOAT
+		SELECT @ThanhTien = (SELECT (So_luongBan * Gia_ban) FROM ChiTietHD, SanPham
+		WHERE ChiTietHD.Ma_sp= SanPham.Ma_sp AND Ma_hoadon = @mahd and ChiTietHD.Ma_sp = @ma_sp
+				AND ChiTietHD.Tinh_trang = 1 AND SanPham.Tinh_trang = 1)
+		RETURN @ThanhTien
+	End
 
-Select Ma_hoadon, dbo.Func_1(Ma_hoadon,Ma_sp) As ThanhTien FROM CHITIETHD
+	Select Ma_hoadon, dbo.Func_1(Ma_hoadon,Ma_sp) As ThanhTien FROM CHITIETHD
+
+
 /*
-	Tạo thủ tục lưu trữ thông tin của mỗi mặt hàng với tên sản phẩm được truyền vào
+	Viết hàm trả về tổng tiền của một hóa đơn với mã hóa đơn và tham số đầu vào 
 */
-Go
-CREATE PROC PROC_1
-@tensp NVARCHAR(100)
-AS 
-BEGIN
-	DECLARE @masp CHAR(10)
-	SELECT @masp = Ma_sp FROM SanPham WHERE Ten_sp = @tensp 
-	SELECT SanPham.Ma_sp, Ten_sp, NhaCungCap.Ma_ncc,Ten_ncc, SUM(So_luongBan) AS Tong_slb,
-		   SUM(Gia_nhap*So_luongBan) AS Tong_tienNhap, SUM(So_luongBan*Gia_ban) AS Tong_tienBan,
-		   ((SUM(So_luongBan*Gia_ban))-(SUM(Gia_nhap*So_luongBan))) As Tong_doanhThu 
-	FROM ChiTietHD, SanPham, NhaCungCap
-	WHERE ChiTietHD.Ma_sp = SanPham.Ma_sp and NhaCungCap.Ma_ncc = SanPham.Ma_ncc
-		  and SanPham.Ma_sp = @masp
-	GROUP BY SanPham.Ma_Sp, Ten_Sp,  NhaCungCap.Ma_ncc,Ten_ncc
-END
+	CREATE FUNCTION FUNC_2(@mahd INT)
+	RETURNS FLOAT
+	AS
+	BEGIN
+		DECLARE @Tongtien FLOAT
+		SELECT @Tongtien =  (Sum(dbo.Func_1(ChiTietHD.Ma_hoadon,Ma_sp)) + Phi_ship)
+		FROM ChiTietHD, HoaDon
+		WHERE HoaDon.Ma_hoadon = @mahd and HoaDon.Ma_hoadon = ChiTietHD.Ma_hoadon
+			  AND ChiTietHD.Tinh_trang = 1 AND HoaDon.Tinh_trang = 1
+		GROUP BY ChiTietHD.Ma_hoadon, Phi_ship
+		RETURN @Tongtien
+	END
 
-EXECUTE PROC_1 N'Nike Air Force 1'
-/*
-	Tạo thủ tục lưu trữ thông tin bảng lương tháng 9 của nhân viên
-*/
-SELECT * FROM dbo.Func_3
-GO
-ALTER PROCEDURE PROC_2 -- CHẠY HÀM 3 TRƯỚC
-AS
-BEGIN
-	Select NhanVien.Ma_nv, Ten_nv, Chuc_vu, Muc_luong, So_ngayLam,
-			ISNULL(dbo.Func_3(NhanVien.Ma_nv,  '09-01-2021'), 0) As SoHoaDon,
-			((Muc_luong*So_ngayLam) + (ISNULL(dbo.Func_3(NhanVien.Ma_nv,  '09-01-2021'), 0)*2)) As TongLuong
-	From NhanVien, Luong
-	Where NhanVien.Ma_nv = Luong.Ma_nv
-	Group by NhanVien.Ma_nv, Ten_nv, Chuc_vu, Muc_luong, So_ngayLam
-END
+	Select Ma_hoadon, dbo.Func_2(Ma_hoadon) As TongTien From HoaDon
 
-EXECUTE PROC_2
-/*
-	Tạo thủ tục lưu trữ thông tin những khách bom hàng
-*/
-SELECT * FROM HOADON
-SELECT * FROM KHACHHANG
-SELECT * FROM CHITIETHD
-GO
-CREATE PROC PROC_3
-AS
-BEGIN
-	SELECT HoaDon.Ma_hoadon, Ngay_hoadon, Ten_sp, KhachHang.Ma_khach,
-		   Ten_Khach, So_dienThoai, Dia_chinhan, Phi_ship
-	From HoaDon, KhachHang, ChiTietHD, SanPham
-	Where HoaDon.Ma_hoadon = ChiTietHD.Ma_hoadon AND SanPham.Ma_sp = ChiTietHD.Ma_sp
-		  AND KhachHang.Ma_khach = HoaDon.Ma_khach AND KhachHang.Tinh_trang = 0
-END
-DELETE FROM KHACHHANG WHERE Ma_khach = 'KH004'
-EXECUTE PROC_3
-CREATE vIEW VIEW_3(Ma_hoadon, Ngay_hoadon, Ten_sp, Ma_Khach, Ten_Khach, So_dienthoai, Dia_chinhan, Phi_ship)
-AS
-SELECT HoaDon.Ma_hoadon, Ngay_hoadon, Ten_sp, KhachHang.Ma_khach, Ten_Khach, So_dienThoai, Dia_chinhan, Phi_ship
-	From HoaDon, KhachHang, ChiTietHD, SanPham
-	Where HoaDon.Ma_hoadon = ChiTietHD.Ma_hoadon AND SanPham.Ma_sp = ChiTietHD.Ma_sp
-		  AND KhachHang.Ma_khach = HoaDon.Ma_khach AND KhachHang.Tinh_trang = 0
-
-		  SELECT * FROM VIEW_3
---SỬ DỤNG HÀM
-/*
-	Viết hàm trả về tiền của một sản phẩm trong đơn hàng có mã hóa đơn và mã sản phẩm được truyền vào
-	ThanhTien = (So_luongBan * GiaBan) Select * From ChiTietHD
-*/
-ALTER FUNCTION FUNC_1(@mahd INT, @ma_sp CHAR(10))
-RETURNS FLOAT
-AS
-BEGIN
-	DECLARE @ThanhTien FLOAT
-	SELECT @ThanhTien = (SELECT (So_luongBan * Gia_ban) FROM ChiTietHD, SanPham
-	WHERE ChiTietHD.Ma_sp= SanPham.Ma_sp AND Ma_hoadon = @mahd and ChiTietHD.Ma_sp = @ma_sp
-			AND ChiTietHD.Tinh_trang = 1 AND SanPham.Tinh_trang = 1)
-	RETURN @ThanhTien
-End
-
-SELECT * FROM CHITIETHD
-Select Ma_hoadon, dbo.Func_1(Ma_hoadon,Ma_sp) As ThanhTien FROM CHITIETHD
-
-ALTER VIEW VIEW_4(Ma_hd, Ma_sp, Ten_sp, So_luongBan, ThanhTien, Anh)
-AS
-Select Ma_hoadon, CHITIETHD.Ma_sp, Ten_sp,So_luongBan, ISNULL(dbo.Func_1(Ma_hoadon,CHITIETHD.Ma_sp),0), Mo_ta
-FROM CHITIETHD, SANPHAM
-WHERE CHITIETHD.Ma_sp = SANPHAM.Ma_sp
-SELECT * FROM VIEW_4
-
---Viết hàm trả về tổng tiền của một hóa đơn với mã hóa đơn và tham số đầu vào 
-ALTER FUNCTION FUNC_2(@mahd INT)
-RETURNS FLOAT
-AS
-BEGIN
-	DECLARE @Tongtien FLOAT
-	SELECT @Tongtien =  (Sum(dbo.Func_1(ChiTietHD.Ma_hoadon,Ma_sp)) + Phi_ship)
-	FROM ChiTietHD, HoaDon
-	WHERE HoaDon.Ma_hoadon = @mahd and HoaDon.Ma_hoadon = ChiTietHD.Ma_hoadon
-		  AND ChiTietHD.Tinh_trang = 1 AND HoaDon.Tinh_trang = 1
-	GROUP BY ChiTietHD.Ma_hoadon, Phi_ship
-	RETURN @Tongtien
-END
-Select Ma_hoadon, ISNULL(dbo.Func_2(Ma_hoadon), 0) As TongTien From HoaDon
-
---Viết view trả về danh sách các đơn hàng của nhà cung cấp nào đó với mã cc được truyền vào
---Viết thủ tục thống kê doanh thu của mỗi sản phẩm
 
 /*
 	Tạo view để thống kê số hóa đơn mà nhân viên bán được
 */
-CREATE VIEW View_1
-As
-Select HoaDon.Ma_nv, Ten_nv, Ngay_hoadon, Count(Ma_hoadon) as SoHD 
-From NhanVien, HoaDon
-Where NhanVien.Ma_nv = HoaDon.Ma_nv AND HoaDon.Tinh_trang = 1
-Group By HoaDon.Ma_nv, Ten_nv, Ngay_hoadon
+	CREATE VIEW View_1
+	As
+	Select HoaDon.Ma_nv, Ten_nv, Ngay_hoadon, Count(Ma_hoadon) as SoHD 
+	From NhanVien, HoaDon
+	Where NhanVien.Ma_nv = HoaDon.Ma_nv AND HoaDon.Tinh_trang = 1
+	Group By HoaDon.Ma_nv, Ten_nv, Ngay_hoadon
 
-Select * From View_1
+	Select * From View_1
+
 
 /*
-	Tạo view thống kê khách hàng đã  trả cho 
-	sản phẩm gì và số tiền phải trả cho sản phẩm đó
+	Viết function trả về số hóa đơn tương ứng từng tháng của nv được truyền vào qua tham số
 */
-SELECT * FROM NHANVIEN
-CREATE VIEW VIEW_2(MaKhach, TenKhach,GioiTinh, SoLuongMua, TongTien)
-AS
-	SELECT KhachHang.Ma_Khach, Ten_khach,
-		   CASE Gioi_tinh WHEN 0 THEN N'Nữ' WHEN 1 THEN N'Nam' END,
-		   SUM(So_luongBan),
-		   SUM(dbo.Func_1(HoaDon.Ma_hoadon, ChiTietHD.Ma_sp))
-	FROM KhachHang, HoaDon, ChiTietHD
-	WHERE KhachHang.Ma_Khach = HoaDon.Ma_Khach AND ChiTietHD.Ma_hoadon = HoaDon.Ma_hoadon
-		  AND KhachHang.Tinh_trang = 1
-	GROUP BY KhachHang.Ma_khach, Ten_khach, Gioi_tinh
-SELECT * FROM VIEW_2
-/*Sử dụng view 2*/
---Tạo thủ tục lưu trữ thông tin khách hàng có số tiền phải trả mua cho mua hàng nhiều nhất
-CREATE PROC PROC_4
-AS
-BEGIN
-	SELECT * FROM VIEW_2
-	WHERE TongTien = (SELECT MAX(TongTien) FROM VIEW_2)
-END
-SELECT * FROM VIEW_2
-EXECUTE PROC_4
+	CREATE FUNCTION FUNC_3(@manv char(10), @thang date) -- CHẠY VIEW 1 TRƯỚC
+	Returns INT
+	As
+	Begin
+		Declare @sohd int
+		Select @sohd = SUM(SoHD) From View_1 
+		Where Ma_nv = @manV AND Month(Ngay_hoadon) = Month(@thang) and Year(Ngay_hoadon) = Year(Ngay_hoadon)
+		Group by Ma_nv
+		Return @sohd
+	End
 
-/*TẠO THỦ TỤC LƯU TRỮ THÔNG TIN HÓA ĐƠN GIỮA 2 NGÀY ĐƯỢC NHẬP VÀO*/
-CREATE PROC PROC_5
-@day1 DATE,
-@day2 DATE
-AS
-BEGIN
-	SELECT HOADON.Ma_hoadon,Ngay_hoadon, Ma_nv, KHACHHANG.Ma_Khach, Ma_nvc, Ma_sp
-	FROM HOADON, CHITIETHD, KHACHHANG
-	WHERE HOADON.Ma_hoadon = CHITIETHD.Ma_hoadon AND HoaDon.Ma_khach = KhachHang.Ma_khach
-		  AND KHACHHANG.Tinh_trang = 1 AND HOADON.Tinh_trang = 1 
-		  AND DAY(Ngay_hoadon) BETWEEN DAY(@day1) AND DAY(@day2)
-END
+	Select Ma_nv, ISNULL(dbo.Func_3(Ma_nv,  '09-01-2021'), 0) As SoHoaDon From NhanVien 
 
-EXECUTE PROC_5 @day1 = '10-01-2021', @day2 = '10-03-2021'
+
+/*	
+	Tạo function thống kê khách hàng đã đến cửa hàng mua những sản phẩm gì và 
+	số tiền phải trả cho sản phẩm đó và mã khách là tham số đầu vào
+*/
+	Create Function Func_5(@mak char(10)) -- viết thành view
+	Returns @table TABLE(MaKhach char(10), HoTen nvarchar(30), GioiTinh nvarchar(10), MaHoaDon int,
+						 MaSanPham char(10), TenSanPham nvarchar(50), SoLuong int, NgayMua Date,
+						 DiaChiNhan nvarchar(100), ThanhTien float)
+	As
+	Begin
+		Insert into @table
+		Select KhachHang.Ma_Khach, Ten_khach,
+			   CASE Gioi_tinh WHEN 0 THEN N'Nữ' WHEN 1 THEN N'Nam' END,
+			   HoaDon.Ma_hoadon, SanPham.Ma_sp, Ten_sp,So_luongBan, Ngay_hoadon, Dia_chinhan,
+			   dbo.Func_1(HoaDon.Ma_hoadon, SanPham.Ma_sp)
+		From KhachHang, HoaDon, SanPham, ChiTietHD
+		Where KhachHang.Ma_Khach = HoaDon.Ma_Khach AND KhachHang.Ma_Khach = @mak
+			  AND SanPham.Ma_sp = ChitietHD.Ma_sp AND ChiTietHD.Ma_hoadon = HoaDon.Ma_hoadon
+		Return
+	End
+
+	Select * FROM dbo.Func_5('KH001')
+
+	/*PROCEDURE*/
+/*
+	Tạo thủ tục lưu trữ thông tin của mỗi mặt hàng với tên sản phẩm được truyền vào
+*/
+	Go
+	CREATE PROC PROC_1
+	@tensp NVARCHAR(100)
+	AS 
+	BEGIN
+		DECLARE @masp CHAR(10)
+		SELECT @masp = Ma_sp FROM SanPham WHERE Ten_sp = @tensp 
+		SELECT SanPham.Ma_sp, Ten_sp, NhaCungCap.Ma_ncc,Ten_ncc, SUM(So_luongBan) AS Tong_slb,
+			   SUM(Gia_nhap*So_luongBan) AS Tong_tienNhap, SUM(So_luongBan*Gia_ban) AS Tong_tienBan,
+			   ((SUM(So_luongBan*Gia_ban))-(SUM(Gia_nhap*So_luongBan))) As Tong_doanhThu 
+		FROM ChiTietHD, SanPham, NhaCungCap
+		WHERE ChiTietHD.Ma_sp = SanPham.Ma_sp and NhaCungCap.Ma_ncc = SanPham.Ma_ncc
+			  and SanPham.Ma_sp = @masp
+		GROUP BY SanPham.Ma_Sp, Ten_Sp,  NhaCungCap.Ma_ncc,Ten_ncc
+	END
+
+	EXECUTE PROC_1 N'Nike Air Force 1'
+	/*
+		Tạo thủ tục lưu trữ thông tin bảng lương tháng 9 của nhân viên sử dụng hàm func_3
+	*/
+	GO
+	CREATE PROCEDURE PROC_2 -- CHẠY HÀM 3 TRƯỚC
+	AS
+	BEGIN
+		Select NhanVien.Ma_nv, Ten_nv, Chuc_vu, Muc_luong, So_ngayLam,
+				ISNULL(dbo.Func_3(NhanVien.Ma_nv,  '09-01-2021'), 0) As SoHoaDon,
+				((Muc_luong*So_ngayLam) + (ISNULL(dbo.Func_3(NhanVien.Ma_nv,  '09-01-2021'), 0)*2)) As TongLuong
+		From NhanVien, Luong
+		Where NhanVien.Ma_nv = Luong.Ma_nv
+		Group by NhanVien.Ma_nv, Ten_nv, Chuc_vu, Muc_luong, So_ngayLam
+	END
+
+	EXECUTE PROC_2
+/*
+	Tạo thủ tục lưu trữ thông tin những khách bom hàng (khi xóa khách hàng)
+*/
 SELECT * FROM HOADON
+SELECT * FROM KHACHHANG
+SELECT * FROM CHITIETHD
+	GO
+	CREATE PROC PROC_3
+	AS
+	BEGIN
+		SELECT HoaDon.Ma_hoadon, Ngay_hoadon, Ten_sp, KhachHang.Ma_khach,
+			   Ten_Khach, So_dienThoai, Dia_chinhan, Phi_ship
+		From HoaDon, KhachHang, ChiTietHD, SanPham
+		Where HoaDon.Ma_hoadon = ChiTietHD.Ma_hoadon AND SanPham.Ma_sp = ChiTietHD.Ma_sp
+			  AND KhachHang.Ma_khach = HoaDon.Ma_khach AND KhachHang.Tinh_trang = 0
+	END
 
---Viết function trả về số hóa đơn tương ứng từng tháng với mã nv, tháng được truyền vào 
-CREATE FUNCTION FUNC_3(@manv char(10), @thang date) -- CHẠY VIEW 1 TRƯỚC
-Returns INT
-As
-Begin
-	Declare @sohd int
-	Select @sohd = SUM(SoHD) From View_1 
-	Where Ma_nv = @manV AND Month(Ngay_hoadon) = Month(@thang) and Year(Ngay_hoadon) = Year(Ngay_hoadon)
-	Group by Ma_nv
-	Return @sohd
-End
-Select Ma_nv, ISNULL(dbo.Func_3(Ma_nv,  '09-01-2021'), 0) As SoHoaDon From NhanVien --Cho những giá trị null == 0
---Sử dụng để thống kê số hàng bán được với tháng được nhập vào
---Những nhân viên, khách hàng đã bán, mua sản phẩm với tên sản phẩm truyền vào
+	DELETE FROM KHACHHANG WHERE Ma_khach = 'KH004' --hiện tại chưa xóa khách hàng nào nên chưa có
 
---Tạo thủ tục lưu trữ thông tin
-	--khách đó đã mua hàng ở cửa hàng bn lần và sản phẩm đó là bn lần
---Tạo function thống kê khách hàng đã đến cửa hàng mua 
---những sản phẩm gì và số tiền phải trả cho sản phẩm đó và mã khách là tham số đầu vào
-Create Function Func_5(@mak char(10)) -- viết thành view
-Returns @table TABLE(MaKhach char(10), HoTen nvarchar(30), GioiTinh nvarchar(10), MaHoaDon int,
-					 MaSanPham char(10), TenSanPham nvarchar(50), SoLuong int, NgayMua Date,
-					 DiaChiNhan nvarchar(100), ThanhTien float)
-As
-Begin
-	Insert into @table
-	Select KhachHang.Ma_Khach, Ten_khach,
-		   CASE Gioi_tinh WHEN 0 THEN N'Nữ' WHEN 1 THEN N'Nam' END,
-		   HoaDon.Ma_hoadon, SanPham.Ma_sp, Ten_sp,So_luongBan, Ngay_hoadon, Dia_chinhan,
-		   dbo.Func_1(HoaDon.Ma_hoadon, SanPham.Ma_sp)
-	From KhachHang, HoaDon, SanPham, ChiTietHD
-	Where KhachHang.Ma_Khach = HoaDon.Ma_Khach AND KhachHang.Ma_Khach = @mak
-		  AND SanPham.Ma_sp = ChitietHD.Ma_sp AND ChiTietHD.Ma_hoadon = HoaDon.Ma_hoadon
-	Return
-End
+	EXECUTE PROC_3
 
-Select * FROM dbo.Func_5('KH001')
---Viết trigger khi xóa sản phẩm thì tự động cập nhật, 
 
-/*PHÂN QUYỀN*/
+
+/*
+	Tạo view thống kê khách hàng đã trả tiền cho sản phẩm gì và số tiền phải trả cho sản phẩm đó
+*/
+	CREATE VIEW VIEW_2(MaKhach, TenKhach,GioiTinh, SoLuongMua, TongTien)
+	AS
+		SELECT KhachHang.Ma_Khach, Ten_khach,
+			   CASE Gioi_tinh WHEN 0 THEN N'Nữ' WHEN 1 THEN N'Nam' END,
+			   SUM(So_luongBan),
+			   SUM(dbo.Func_1(HoaDon.Ma_hoadon, ChiTietHD.Ma_sp))
+		FROM KhachHang, HoaDon, ChiTietHD
+		WHERE KhachHang.Ma_Khach = HoaDon.Ma_Khach AND ChiTietHD.Ma_hoadon = HoaDon.Ma_hoadon
+			  AND KhachHang.Tinh_trang = 1
+		GROUP BY KhachHang.Ma_khach, Ten_khach, Gioi_tinh
+
+	SELECT * FROM VIEW_2
+/*
+	Tạo thủ tục lưu trữ thông tin khách hàng có số tiền phải trả mua cho mua hàng nhiều nhất
+	sử dụng view 2
+*/
+	CREATE PROC PROC_4
+	AS
+	BEGIN
+		SELECT * FROM VIEW_2
+		WHERE TongTien = (SELECT MAX(TongTien) FROM VIEW_2)
+	END
+
+	EXECUTE PROC_4
+
+
+/*
+	TẠO THỦ TỤC LƯU TRỮ THÔNG TIN HÓA ĐƠN GIỮA 2 NGÀY ĐƯỢC NHẬP VÀO
+*/
+	CREATE PROC PROC_5
+	@day1 DATE,
+	@day2 DATE
+	AS
+	BEGIN
+		SELECT HOADON.Ma_hoadon,Ngay_hoadon, Ma_nv, KHACHHANG.Ma_Khach, Ma_nvc, Ma_sp
+		FROM HOADON, CHITIETHD, KHACHHANG
+		WHERE HOADON.Ma_hoadon = CHITIETHD.Ma_hoadon AND HoaDon.Ma_khach = KhachHang.Ma_khach
+			  AND KHACHHANG.Tinh_trang = 1 AND HOADON.Tinh_trang = 1 
+			  AND DAY(Ngay_hoadon) BETWEEN DAY(@day1) AND DAY(@day2)
+	END
+
+	EXECUTE PROC_5 @day1 = '10-01-2021', @day2 = '10-03-2021'
+
+
+	/*VIEW*/
+/*
+	TẠO View thống kê hóa đơn, ... những khách hàng bị xóa
+*/
+	CREATE VIEW VIEW_3(Ma_hoadon, Ngay_hoadon, Ten_sp, Ma_Khach, Ten_Khach, So_dienthoai, Dia_chinhan, Phi_ship)
+	AS
+	SELECT HoaDon.Ma_hoadon, Ngay_hoadon, Ten_sp, KhachHang.Ma_khach, Ten_Khach, So_dienThoai, Dia_chinhan, Phi_ship
+		From HoaDon, KhachHang, ChiTietHD, SanPham
+		Where HoaDon.Ma_hoadon = ChiTietHD.Ma_hoadon AND SanPham.Ma_sp = ChiTietHD.Ma_sp
+			  AND KhachHang.Ma_khach = HoaDon.Ma_khach AND KhachHang.Tinh_trang = 0
+
+	
+	SELECT * FROM VIEW_3 -- chưa có khách hàng nào tình trạng = 0
+
+/*
+	Tạo view hiển thị chi tiết hóa đơn
+*/
+	CREATE VIEW VIEW_4(Ma_hd, Ma_sp, Ten_sp, So_luongBan, ThanhTien, Anh)
+	AS
+	Select Ma_hoadon, CHITIETHD.Ma_sp, Ten_sp,So_luongBan, ISNULL(dbo.Func_1(Ma_hoadon,CHITIETHD.Ma_sp),0), Mo_ta
+	FROM CHITIETHD, SANPHAM
+	WHERE CHITIETHD.Ma_sp = SANPHAM.Ma_sp
+
+	SELECT * FROM VIEW_4
+
+/*
+	Bổ sung
+	Tạo view thống kê sản phẩm
+*/
+	CREATE VIEW VIEW_5
+	AS
+	SELECT SanPham.Ma_sp, Ten_sp, NhaCungCap.Ma_ncc,Ten_ncc, SUM(So_luongBan) AS Tong_slb,
+			   SUM(Gia_nhap*So_luongBan) AS Tong_tienNhap, SUM(So_luongBan*Gia_ban) AS Tong_tienBan,
+			   ((SUM(So_luongBan*Gia_ban))-(SUM(Gia_nhap*So_luongBan))) As Tong_doanhThu 
+		FROM ChiTietHD, SanPham, NhaCungCap
+		WHERE ChiTietHD.Ma_sp = SanPham.Ma_sp and NhaCungCap.Ma_ncc = SanPham.Ma_ncc
+		GROUP BY SanPham.Ma_Sp, Ten_Sp,  NhaCungCap.Ma_ncc,Ten_ncc
+
+	SELECT * FROM VIEW_5
+
+
+	/*PHÂN QUYỀN*/
 /*Tạo role*/
 sp_addrole'nhanvien'
 
 /*Cấp quyền cho role*/
 grant insert, delete, update ON HOADON to nhanvien
 grant insert, delete, update ON CHITIETHD to nhanvien
+grant insert, delete, update ON KHACHHANG to nhanvien
 grant select on SANPHAM to nhanvien
 
 /*Tạo 2 user*/
 sp_addlogin 'duc', '12345'
 sp_addlogin 'long', '123'
 
-/*Map user*/
+/*Tạo một user trong csdl*/
 USE BTL_CuaHangGiay
 exec sp_grantdbaccess 'duc', 'DUC'
 exec sp_grantdbaccess 'long', 'LONG'
@@ -583,19 +581,5 @@ sp_addrolemember 'nhanvien', 'DUC'
 sp_addrolemember 'nhanvien', 'LONG'
 
 
---Bổ sung
---Tạo view thống kê sản phẩm
-CREATE VIEW VIEW_5
-AS
-SELECT SanPham.Ma_sp, Ten_sp, NhaCungCap.Ma_ncc,Ten_ncc, SUM(So_luongBan) AS Tong_slb,
-		   SUM(Gia_nhap*So_luongBan) AS Tong_tienNhap, SUM(So_luongBan*Gia_ban) AS Tong_tienBan,
-		   ((SUM(So_luongBan*Gia_ban))-(SUM(Gia_nhap*So_luongBan))) As Tong_doanhThu 
-	FROM ChiTietHD, SanPham, NhaCungCap
-	WHERE ChiTietHD.Ma_sp = SanPham.Ma_sp and NhaCungCap.Ma_ncc = SanPham.Ma_ncc
-	GROUP BY SanPham.Ma_Sp, Ten_Sp,  NhaCungCap.Ma_ncc,Ten_ncc
-	
-SELECT * FROM VIEW_5
-SELECT * FROM HOADON
-SELECT * FROM CHITIETHD
-CREATE VIEW VIEW_6
+
 
