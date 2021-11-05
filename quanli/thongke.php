@@ -7,7 +7,7 @@
             <div class="box">
                 <div class="box-image">
                     <img src="../image/bangluong.jpg" alt="">
-                        <a href="luongnv.php">Lương nhân viên</a>
+                        <a href="thongkeluong.php">Lương nhân viên</a>
                 </div>
             </div>
             <div class="box">
@@ -19,13 +19,13 @@
             <div class="box">
                 <div class="box-image">
                     <img src="../image/khachhang.jpg" alt="">
-                        <a href="luongnv.php">Khách hàng</a>
+                        <a href="thongkekh.php">Khách hàng</a>
                 </div>
             </div>
             <div class="box">
                 <div class="box-image">
                     <img src="../image/thongkehoadon.png" alt="">
-                        <a href="luongnv.php">Hóa đơn</a>
+                        <a href="thongkehd.php">Hóa đơn</a>
                 </div>
             </div>
             <div class="box">

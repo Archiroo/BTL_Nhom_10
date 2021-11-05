@@ -1,7 +1,7 @@
 ﻿CREATE DATABASE BTL_CuaHangGiay
 USE BTL_CuaHangGiay
 --Bảng nhà cung cấp
-
+SELECT * FROM NHAVANCHUYEN
 CREATE TABLE NHACUNGCAP(
 	Ma_ncc CHAR(10) not null PRIMARY KEY,
 	Ten_ncc NVARCHAR(100),
@@ -384,7 +384,7 @@ EXECUTE PROC_1 N'Nike Air Force 1'
 */
 SELECT * FROM dbo.Func_3
 GO
-CREATE PROCEDURE PROC_2 -- CHẠY HÀM 3 TRƯỚC
+ALTER PROCEDURE PROC_2 -- CHẠY HÀM 3 TRƯỚC
 AS
 BEGIN
 	Select NhanVien.Ma_nv, Ten_nv, Chuc_vu, Muc_luong, So_ngayLam,
@@ -438,7 +438,15 @@ BEGIN
 	RETURN @ThanhTien
 End
 
+SELECT * FROM CHITIETHD
 Select Ma_hoadon, dbo.Func_1(Ma_hoadon,Ma_sp) As ThanhTien FROM CHITIETHD
+
+ALTER VIEW VIEW_4(Ma_hd, Ma_sp, Ten_sp, So_luongBan, ThanhTien, Anh)
+AS
+Select Ma_hoadon, CHITIETHD.Ma_sp, Ten_sp,So_luongBan, ISNULL(dbo.Func_1(Ma_hoadon,CHITIETHD.Ma_sp),0), Mo_ta
+FROM CHITIETHD, SANPHAM
+WHERE CHITIETHD.Ma_sp = SANPHAM.Ma_sp
+SELECT * FROM VIEW_4
 
 --Viết hàm trả về tổng tiền của một hóa đơn với mã hóa đơn và tham số đầu vào 
 ALTER FUNCTION FUNC_2(@mahd INT)
@@ -453,8 +461,7 @@ BEGIN
 	GROUP BY ChiTietHD.Ma_hoadon, Phi_ship
 	RETURN @Tongtien
 END
-
-Select Ma_hoadon, dbo.Func_2(Ma_hoadon) As TongTien From HoaDon
+Select Ma_hoadon, ISNULL(dbo.Func_2(Ma_hoadon), 0) As TongTien From HoaDon
 
 --Viết view trả về danh sách các đơn hàng của nhà cung cấp nào đó với mã cc được truyền vào
 --Viết thủ tục thống kê doanh thu của mỗi sản phẩm
@@ -475,6 +482,7 @@ Select * From View_1
 	Tạo view thống kê khách hàng đã  trả cho 
 	sản phẩm gì và số tiền phải trả cho sản phẩm đó
 */
+SELECT * FROM NHANVIEN
 CREATE VIEW VIEW_2(MaKhach, TenKhach,GioiTinh, SoLuongMua, TongTien)
 AS
 	SELECT KhachHang.Ma_Khach, Ten_khach,
@@ -573,4 +581,21 @@ exec sp_grantdbaccess 'long', 'LONG'
 /*Gắn user DUC, LONG vào role*/
 sp_addrolemember 'nhanvien', 'DUC'
 sp_addrolemember 'nhanvien', 'LONG'
+
+
+--Bổ sung
+--Tạo view thống kê sản phẩm
+CREATE VIEW VIEW_5
+AS
+SELECT SanPham.Ma_sp, Ten_sp, NhaCungCap.Ma_ncc,Ten_ncc, SUM(So_luongBan) AS Tong_slb,
+		   SUM(Gia_nhap*So_luongBan) AS Tong_tienNhap, SUM(So_luongBan*Gia_ban) AS Tong_tienBan,
+		   ((SUM(So_luongBan*Gia_ban))-(SUM(Gia_nhap*So_luongBan))) As Tong_doanhThu 
+	FROM ChiTietHD, SanPham, NhaCungCap
+	WHERE ChiTietHD.Ma_sp = SanPham.Ma_sp and NhaCungCap.Ma_ncc = SanPham.Ma_ncc
+	GROUP BY SanPham.Ma_Sp, Ten_Sp,  NhaCungCap.Ma_ncc,Ten_ncc
+	
+SELECT * FROM VIEW_5
+SELECT * FROM HOADON
+SELECT * FROM CHITIETHD
+CREATE VIEW VIEW_6
 

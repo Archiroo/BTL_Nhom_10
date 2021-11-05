@@ -32,12 +32,6 @@
         <div class="sidebar-menu">
             <ul>
                 <li>
-                    <a href="index.php">
-                        <span class="fas fa-home"></span>
-                        <span>Trang chủ</span>
-                    </a>
-                </li>
-                <li>
                     <a href="nhanvien.php">
                         <span class="fas fa-user"></span>
                         <span>Nhân viên</span>
@@ -65,12 +59,6 @@
                     <a href="thongke.php">
                         <span class="fas fa-poll"></span>
                         <span>Thống kê</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="../sign-out.php">
-                        <span class="fas fa-power-off"></span>
-                        <span>Đăng xuất</span>
                     </a>
                 </li>
             </ul>

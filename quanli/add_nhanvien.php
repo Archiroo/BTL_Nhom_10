@@ -12,10 +12,10 @@
                     $gioitinh = $_POST['gender'];
                     $address = $_POST['address'];
                     $phone = $_POST['phone'];
-                    // $ngay_sinh = $_POST['birthday'];
+                    $ngay_sinh = $_POST['birthday'];
+                    $time = strtotime($ngay_sinh);
 
-                    // $time = strtotime($ngay_sinh);
-                    $format_date = date('Y-m-d');
+                    $format_date = date('Y-m-d', $time);
                     $chuc_vu = $_POST['chucvu'];
                     if(isset($_FILES['image']['name']))
                     {

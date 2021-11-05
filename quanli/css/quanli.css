@@ -429,9 +429,28 @@ select{
     border: var(--border);
 }
 
-
-
-
+.date1{
+    display: flex;
+    justify-content: space-between;
+}
+.date1 .date span{
+    font-size: 1.6rem;
+    margin-right: 3rem;
+}
+.date1 .date{
+    display: flex;
+    align-items: center;
+}
+.date1 .date input{
+    display: block;
+    font-size: 1.6rem;
+    padding: 0.5rem;
+    min-width: 25rem;
+    border-radius: 0.5rem;
+    margin: 1rem 0 2rem 0;
+    background: #fff;
+    border: var(--border);
+}
 
 
 
