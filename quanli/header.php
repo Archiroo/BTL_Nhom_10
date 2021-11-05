@@ -50,7 +50,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="subject.php">
+                    <a href="sanpham.php">
                         <span class="fas fa-folder"></span>
                         <span>Sản phẩm</span>
                     </a>

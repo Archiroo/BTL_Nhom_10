@@ -3,7 +3,7 @@
 ?>
 
     <main>
-        <a href="add_nhanvien.php" class="btn btn-add"><i class="fas fa-user-plus"></i> Thêm nhân viên</a>
+        <a href="add_sanpham.php" class="btn btn-add"><i class="fas fa-user-plus"></i> Thêm sản phẩm</a>
         <section class="recent">
             <div class="activity-grid">
                 <div class="activity-card">
@@ -12,13 +12,13 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>Mã nv</th>
-                                    <th>Tên nv</th>
-                                    <th>Giới tính</th>
-                                    <th>Ngày sinh</th>
-                                    <th>Chức vụ</th>
-                                    <th>Số dt</th>
-                                    <th>Anh</th>
+                                    <th>Mã sp</th>
+                                    <th>Mã ncc</th>
+                                    <th>Tên sp</th>
+                                    <th>Giá nhập</th>
+                                    <th>Giá bán</th>
+                                    <th>Số lượng</th>
+                                    <th>Mô tả sản phẩm</th>
                                     <th>Sửa</th>
                                     <th>Xóa</th>
                                 </tr>
@@ -26,54 +26,36 @@
                             <tbody>
                                 <tr>
                                     <?php
-                                        $sql = "SELECT * FROM NHANVIEN WHERE Tinh_trang = 1";
+                                        $sql = "SELECT * FROM SANPHAM WHERE Tinh_trang = 1";
                                         $res = sqlsrv_query($conn, $sql);
                                         while($row = sqlsrv_fetch_array($res))
                                         {
-                                            $id_nv = $row['Ma_nv'];
-                                            $name = $row['Ten_nv'];
-                                            $gender = $row['Gioi_tinh'];
-                                            $birth_day = $row['Ngay_sinh']->format('d-m-Y');
-                                            $chuc_vu = $row['Chuc_vu'];
-                                            $so_dt = $row['So_dt'];
-                                            $address = $row['Dia_chi'];
+                                            $id_sp = $row['Ma_sp'];
+                                            $id_ncc = $row['Ma_ncc'];
+                                            $ten_sp = $row['Ten_sp'];
+                                            $gianhap = $row['Gia_nhap'];
+                                            $giaban = $row['Gia_ban'];
+                                            $sl = $row['So_luongTon'];
                                             $anh = $row['Mo_ta'];
-                                            $status = $row['Tinh_trang'];
+                                            
                                         ?>
                                         <tr>
-                                            <td><?php echo $id_nv;?></td>
-                                            <td><?php echo $name;?></td>
+                                            <td><?php echo $id_sp;?></td>
+                                            <td><?php echo $id_ncc;?></td>
+                                            <td><?php echo $ten_sp;?></td>
+                                            <td style="text-align: center;"><?php echo $gianhap;?></td>
+                                            <td style="text-align: center;"><?php echo $giaban;?></td>
+                                            <td style="text-align: center;"><?php echo $sl;?></td>
                                             <td style="text-align: center;">
-                                                <?php
-                                                    if($gender==1)
-                                                    {
-                                                        echo "Nam";
-                                                    }
-                                                    if($gender==0)
-                                                    {
-                                                        echo "Nữ";
-                                                    }
-                                                ?>
-                                            </td>
+                                                <img src="../image/<?php echo $anh; ?>" alt="" width="100px">
+                                            </td> 
                                             <td>
-                                                <?php
-                                                    echo $birth_day;
-                                                ?>
-                                            </td>
-                                            <td><?php echo $chuc_vu ?></td>
-                                            <td><?php echo $so_dt ?></td>
-                                            <td class="td-team" style="margin-left: 1.5rem;">
-                                                <div class="img-1">
-                                                    <img src="../image/<?php echo $anh;?>" alt="">
-                                                </div>
-                                            </td>
-                                            <td>
-                                                <a href="update_nhanvien.php?id_nv=<?php echo $id_nv;?>" class="update-icon">
+                                                <a href="update_sp.php?id_sp=<?php echo $id_sp;?>" class="update-icon">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
                                             </td>
                                             <td>
-                                                <a href="delete_nhanvien.php?id_nv=<?php echo $id_nv;?>" class="delete-icon">
+                                                <a href="delete_sp.php?id_sp=<?php echo $id_sp;?>" class="delete-icon">
                                                     <i class="fas fa-trash-alt"></i>
                                                 </a>
                                             </td>
