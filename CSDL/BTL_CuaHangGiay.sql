@@ -1,7 +1,6 @@
 ﻿CREATE DATABASE BTL_CuaHangGiay
 USE BTL_CuaHangGiay
 --Bảng nhà cung cấp
-SELECT * FROM NHANVIEN
 
 CREATE TABLE NHACUNGCAP(
 	Ma_ncc CHAR(10) not null PRIMARY KEY,
@@ -251,6 +250,7 @@ Values('NCC01', N'Nike', '096 5269082', N'Ninh Bình'),
 	  ('NCC04', N'Vans', '033 3333147', N'Nghệ An'),
 	  ('NCC05', N'MLB', '038 7383884', N'Hà Nội')
 --Dữ liệu bảng
+SELECT * FROM SANPHAM
 INSERT INTO SANPHAM(Ma_sp, Ten_sp, Mo_ta, Gia_nhap, Gia_ban, So_luongTon, Ma_ncc)
 Values('SP001', 'Nike Air Force 1', 'sanpham1.jpg', 1050, 1110, 19, 'NCC01'),
 	  ('SP002', 'Nike Air Jordan 1', 'sanpham2.jpg', 2100, 2200, 14, 'NCC01'),

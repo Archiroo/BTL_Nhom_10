@@ -56,13 +56,13 @@
                     </a>
                 </li>
                 <li>
-                    <a href="homework.php">
+                    <a href="nhavanchuyen.php">
                         <i class="fas fa-truck"></i>
                         <span>Nhà vận chuyển</span>
                     </a>
                 </li>
                 <li>
-                    <a href="contact.php">
+                    <a href="thongke.php">
                         <span class="fas fa-poll"></span>
                         <span>Thống kê</span>
                     </a>
